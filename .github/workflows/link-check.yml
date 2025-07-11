@@ -1,0 +1,29 @@
+name: Check for Broken Links
+
+on:
+  push:
+    branches:
+      - main  # change to your default branch if different
+  schedule:
+    - cron: '0 0 * * *'  # runs daily at 00:00 UTC
+
+jobs:
+  link-check:
+    name: Run Lychee link checker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install lychee
+        run: |
+          curl -LsSf https://github.com/lycheeverse/lychee/releases/latest/download/lychee-linux.tar.gz | tar xz
+          sudo mv lychee /usr/local/bin/
+
+      - name: Run lychee on HTML and Markdown files
+        run: |
+          lychee --verbose --no-progress './**/*.md' './**/*.html' || true
+
+      # Optional: fail the workflow if broken links are found
+      # Remove `|| true` from above if you want the action to fail on broken links
